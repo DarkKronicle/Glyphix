@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "glyphix",
+  "version": "${version}",
+  "name": "Glyphix",
+  "description": "Improves Minecraft font rendering and adds more customizability",
+  "authors": [],
+  "contact": {},
+  "license": "MPL-2.0",
+  "icon": "assets/glyphix/icon.png",
+  "accessWidener": "glyphix.accesswidener",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "io.github.darkkronicle.glyphix.Glyphix"
+    ]
+  },
+  "mixins": [
+    "glyphix.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.11",
+    "fabric": "*",
+    "minecraft": ">=1.19"
+  }
+}

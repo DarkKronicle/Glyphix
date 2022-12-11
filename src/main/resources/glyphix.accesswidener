@@ -1,0 +1,14 @@
+accessWidener	v1	named
+
+extendable method net/minecraft/client/font/TextRenderer drawInternal (Ljava/lang/String;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZIIZ)I
+extendable method net/minecraft/client/font/TextRenderer drawLayer (Ljava/lang/String;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)F
+extendable method net/minecraft/client/font/TextRenderer drawLayer (Lnet/minecraft/text/OrderedText;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)F
+extendable method net/minecraft/client/font/TextRenderer drawGlyph (Lnet/minecraft/client/font/GlyphRenderer;ZZFFFLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumer;FFFFI)V
+accessible method net/minecraft/client/font/TextRenderer getFontStorage (Lnet/minecraft/util/Identifier;)Lnet/minecraft/client/font/FontStorage;
+accessible field net/minecraft/client/font/TextRenderer validateAdvance Z
+accessible class net/minecraft/client/font/TextHandler$StyledString
+accessible field net/minecraft/client/font/TextHandler$StyledString style Lnet/minecraft/text/Style;
+accessible field net/minecraft/client/font/TextHandler$StyledString literal Ljava/lang/String;
+accessible class net/minecraft/client/render/RenderLayer$MultiPhaseParameters
+accessible class net/minecraft/client/render/RenderLayer$MultiPhase
+accessible method net/minecraft/client/render/RenderLayer$MultiPhase <init> (Ljava/lang/String;Lnet/minecraft/client/render/VertexFormat;Lnet/minecraft/client/render/VertexFormat$DrawMode;IZZLnet/minecraft/client/render/RenderLayer$MultiPhaseParameters;)V
