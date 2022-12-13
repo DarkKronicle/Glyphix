@@ -3,6 +3,8 @@ package io.github.darkkronicle.glyphix.font;
 import com.google.gson.*;
 import io.github.darkkronicle.glyphix.Glyphix;
 import io.github.darkkronicle.glyphix.text.ContextualCharacterVisitor;
+import io.github.darkkronicle.glyphix.text.GlyphInfo;
+import io.github.darkkronicle.glyphix.text.GlyphVisitable;
 import io.github.darkkronicle.glyphix.vanilla.LigatureFont;
 import it.unimi.dsi.fastutil.ints.*;
 import lombok.*;
@@ -49,11 +51,11 @@ public class EmojiFont implements LigatureFont {
             return null;
         }
         // Just get the first one
-        EmojiLocation location = Arrays.stream(locations).filter(loc -> loc.codepoints.length == 0).findFirst().orElse(null);
+        EmojiLocation location = Arrays.stream(locations).filter(loc -> loc.codepoints.length == 1).findFirst().orElse(null);
         if (location == null) {
             return null;
         }
-        return location.getCached(this);
+        return location.getCached(this).glyph();
     }
 
     public static int utf8ToCodepoint(String utf8) {
@@ -135,13 +137,12 @@ public class EmojiFont implements LigatureFont {
     }
 
     private boolean valid(ContextualCharacterVisitor visitor, int index, EmojiLocation find) {
-        int i = 1;
-        for (int codepoint : find.getCodepoints()) {
+        for (int i = 1; i < find.getCodepoints().length; i++) {
+            int codepoint = find.getCodepoints()[i];
             ContextualCharacterVisitor.Visited vis = visitor.get(index + i);
             if (vis == null || vis.codepoint() != codepoint) {
                 return false;
             }
-            i++;
         }
         return true;
     }
@@ -165,23 +166,32 @@ public class EmojiFont implements LigatureFont {
         if (found == null) {
             return null;
         }
-//        visitor.skip(found.codepoints.length);
+        return found.getCached(this).glyph();
+    }
+
+    @Override
+    public GlyphInfo<EmojiGlyph> getGlyphInfo(ContextualCharacterVisitor visitor) {
+        int codepoint = visitor.current().codepoint();
+        EmojiLocation[] locations = atlas.positions.get(codepoint);
+        if (locations == null || locations.length == 0) {
+            return null;
+        }
+        EmojiLocation found = getLocation(visitor, locations);
+        if (found == null) {
+            return null;
+        }
         return found.getCached(this);
     }
 
     @RequiredArgsConstructor
-    public class EmojiGlyph implements LigatureGlyph {
+    public class EmojiGlyph implements Glyph {
 
         protected final int x;
         protected final int y;
         protected final int characterLength;
+        protected final int charCount;
 
         protected GlyphRenderer baked;
-
-        @Override
-        public int characterLength() {
-            return characterLength;
-        }
 
         @Override
         public float getAdvance() {
@@ -268,12 +278,9 @@ public class EmojiFont implements LigatureFont {
                             newLocation = new EmojiLocation[locations.length + 1];
                             System.arraycopy(locations, 0, newLocation, 0, locations.length);
                         }
-                        List<Integer> codepoint = new ArrayList<>();
-                        for (int p = 1; p < parts.length; p++) {
-                            codepoint.add(Integer.valueOf(parts[p], 16));
-                        }
+                        int[] codepoints = Arrays.stream(parts).mapToInt(str -> Integer.valueOf(str, 16)).toArray();
                         newLocation[newLocation.length - 1] = new EmojiLocation(
-                                new Vec2i(rowI, columnI), codepoint.stream().mapToInt(i -> i).toArray());
+                                new Vec2i(rowI, columnI), codepoints);
                         positions.put(start, newLocation);
                         rowI++;
                     }
@@ -287,8 +294,8 @@ public class EmojiFont implements LigatureFont {
 
     }
 
-    private EmojiGlyph createGlyph(Vec2i position, int characterLength) {
-        return new EmojiGlyph(position.x * atlas.length, position.y * atlas.length, characterLength);
+    private GlyphInfo<EmojiGlyph> createGlyph(Vec2i position, int characterLength, int[] codepoints) {
+        return new GlyphInfo<>(new EmojiGlyph(position.x * atlas.length, position.y * atlas.length, characterLength, codepoints.length), codepoints);
     }
 
     @EqualsAndHashCode
@@ -304,11 +311,11 @@ public class EmojiFont implements LigatureFont {
             this.codepoints = codepoints;
         }
 
-        private EmojiGlyph cached = null;
+        private GlyphInfo<EmojiGlyph> cached = null;
 
-        public EmojiGlyph getCached(EmojiFont font) {
+        public GlyphInfo<EmojiGlyph> getCached(EmojiFont font) {
             if (cached == null) {
-                cached = font.createGlyph(position, codepoints.length + 1);
+                cached = font.createGlyph(position, codepoints.length, codepoints);
             }
             return cached;
         }

@@ -1,14 +1,13 @@
 package io.github.darkkronicle.glyphix.text;
 
-import net.minecraft.client.font.FontStorage;
-import net.minecraft.client.font.GlyphRenderer;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.font.TextVisitFactory;
+import net.minecraft.client.font.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.text.OrderedText;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Style;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3f;
 
@@ -23,6 +22,7 @@ public class GlyphixRenderer extends TextRenderer {
             boolean validateAdvance
     ) {
         super(fontStorageAccessor, validateAdvance);
+        this.handler = new GlyphixTextHandler(this);
     }
 
     private static int tweakTransparency(int argb) {
@@ -105,4 +105,5 @@ public class GlyphixRenderer extends TextRenderer {
     ) {
         super.drawGlyph(glyphRenderer, bold, italic, weight, x, y, matrix, vertexConsumer, red, green, blue, alpha, light);
     }
+
 }

@@ -2,9 +2,7 @@ package io.github.darkkronicle.glyphix.text;
 
 import com.google.common.collect.Lists;
 import io.github.darkkronicle.glyphix.font.EmojiFont;
-import io.github.darkkronicle.glyphix.font.LigatureGlyph;
 import io.github.darkkronicle.glyphix.vanilla.EmojiLayerHolder;
-import io.github.darkkronicle.glyphix.vanilla.LigatureFont;
 import io.github.darkkronicle.glyphix.vanilla.LigatureFontStorage;
 import net.minecraft.client.font.*;
 import net.minecraft.client.render.RenderLayer;
@@ -87,8 +85,8 @@ public class GlyphixDrawer extends ContextualCharacterVisitor {
         int codepoint = visited.codepoint();
         FontStorage fontStorage = renderer.getFontStorage(visited.style().getFont());
         LigatureFontStorage ligStorage = (LigatureFontStorage) fontStorage;
-        Glyph glyph = ligStorage.getGlyph(this, renderer.validateAdvance);
-        GlyphRenderer glyphRenderer = style.isObfuscated() && codepoint != 32 ? fontStorage.getObfuscatedGlyphRenderer(glyph) : ligStorage.getGlyphRenderer(this);
+        GlyphInfo<?> glyph = ligStorage.getGlyphInfo(this, renderer.validateAdvance);
+        GlyphRenderer glyphRenderer = style.isObfuscated() && codepoint != 32 ? fontStorage.getObfuscatedGlyphRenderer(glyph.glyph()) : ligStorage.getGlyphRenderer(this);
         boolean bl = style.isBold();
         float f = this.alpha;
         TextColor textColor = style.getColor();
@@ -107,8 +105,8 @@ public class GlyphixDrawer extends ContextualCharacterVisitor {
         }
 
         if (!(glyphRenderer instanceof EmptyGlyphRenderer)) {
-            float m = bl ? glyph.getBoldOffset() : 0.0F;
-            float n = this.shadow ? glyph.getShadowOffset() : 0.0F;
+            float m = bl ? glyph.glyph().getBoldOffset() : 0.0F;
+            float n = this.shadow ? glyph.glyph().getShadowOffset() : 0.0F;
             boolean emoji = EmojiFont.codepointToUtf8(codepoint) != null;
             if (this.shadow && emoji) {
                 // Render the shadow color correctly
@@ -142,9 +140,7 @@ public class GlyphixDrawer extends ContextualCharacterVisitor {
                             l, f
                     ));
         }
-        if (glyph instanceof LigatureGlyph lig) {
-            skip(lig.characterLength() - 1);
-        }
+        skip(Math.max(glyph.codepointsLength() - 1, 0));
         this.x += m;
         return true;
     }

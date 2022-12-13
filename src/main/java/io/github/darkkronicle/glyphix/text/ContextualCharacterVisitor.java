@@ -13,14 +13,27 @@ public abstract class ContextualCharacterVisitor implements CharacterVisitor {
     private final List<Visited> visited = new ArrayList<>();
     private int currentIndex = 0;
 
-    public void done() {
+    public boolean done() {
+        return done(true);
+    }
+
+    public boolean done(boolean clear) {
         while (currentIndex < visited.size()) {
             Visited v = visited.get(currentIndex);
             if (!accept(v)) {
-                return;
+                return false;
             }
             currentIndex++;
         }
+        if (clear) {
+            clear();
+        }
+        return true;
+    }
+
+    public void clear() {
+        visited.clear();
+        currentIndex = 0;
     }
 
     public abstract boolean accept(Visited visited);
