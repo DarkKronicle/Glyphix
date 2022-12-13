@@ -202,11 +202,11 @@ public class GlyphixTextHandler extends TextHandler {
                 break;
             }
 
-            int k = lineBreakingVisitor.getEndingIndex();
-            char c = text.charAt(k);
-            int l = c != '\n' && c != ' ' ? k : k + 1;
-            consumer.accept(startingStyle, startingIndex, retainTrailingWordSplit ? l : k);
-            startingIndex = l;
+            int lastBreak = lineBreakingVisitor.getEndingIndex();
+            char characterAtBreak = text.charAt(lastBreak);
+            int trailingWord = (characterAtBreak != '\n' && characterAtBreak != ' ') ? lastBreak : lastBreak + 1;
+            consumer.accept(startingStyle, startingIndex, retainTrailingWordSplit ? trailingWord : lastBreak);
+            startingIndex = trailingWord;
         }
     }
 

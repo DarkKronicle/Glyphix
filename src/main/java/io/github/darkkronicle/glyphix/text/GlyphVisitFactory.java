@@ -75,7 +75,7 @@ public class GlyphVisitFactory {
         int characterIndex = 0;
         for (int i = 0; i <= glyphs.size() - 1; i++) {
             GlyphInfo<?> g = glyphs.get(i);
-            if (!visitor.accept(i, characterIndex, context.get(i).style(), g)) {
+            if (!visitor.accept(i + startingIndex, characterIndex + startingIndex, context.get(i).style(), g)) {
                 return false;
             }
             characterIndex += g.charLength();
