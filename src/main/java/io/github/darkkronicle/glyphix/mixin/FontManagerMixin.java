@@ -34,5 +34,4 @@ public class FontManagerMixin {
         cir.setReturnValue(new GlyphixRenderer(id -> this.fontStorages.getOrDefault(this.idOverrides.getOrDefault(id, id), this.missingStorage), true));
     }
 
-
 }

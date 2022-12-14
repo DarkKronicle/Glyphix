@@ -4,7 +4,7 @@ import net.minecraft.client.font.Glyph;
 
 import java.util.Arrays;
 
-public record GlyphInfo<G extends Glyph>(G glyph, int[] codepoints) {
+public record GlyphInfo<G extends Glyph>(G glyph, int[] codepoints, boolean tint) {
 
     public float getAdvance() {
         return glyph.getAdvance(false);

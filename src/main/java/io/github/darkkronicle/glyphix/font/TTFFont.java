@@ -1,17 +1,20 @@
 package io.github.darkkronicle.glyphix.font;
 
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.font.Font;
-import net.minecraft.client.font.Glyph;
-import net.minecraft.client.font.GlyphRenderer;
-import net.minecraft.client.font.RenderableGlyph;
+import net.minecraft.client.font.*;
 import net.minecraft.client.texture.NativeImage;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTruetype;
@@ -26,13 +29,13 @@ import java.util.stream.IntStream;
 @Environment(value = EnvType.CLIENT)
 public class TTFFont implements Font {
     private final ByteBuffer buffer;
-    final STBTTFontinfo info;
-    final float oversample;
+    private final STBTTFontinfo info;
+    private final float oversample;
     private final IntSet excludedCharacters = new IntArraySet();
-    final float shiftX;
-    final float shiftY;
-    final float scaleFactor;
-    final float ascent;
+    private final float shiftX;
+    private final float shiftY;
+    private final float scaleFactor;
+    private final float ascent;
 
     public TTFFont(
             ByteBuffer buffer, STBTTFontinfo info, float size, float oversample, float shiftX, float shiftY, String excludedCharacters
@@ -58,6 +61,9 @@ public class TTFFont implements Font {
     public Glyph getGlyph(int codePoint) {
         if (this.excludedCharacters.contains(codePoint)) {
             return null;
+        }
+        if (codePoint == 106) {
+            System.out.println("Here");
         }
         try (MemoryStack memoryStack = MemoryStack.stackPush()) {
             int glyphIndex = STBTruetype.stbtt_FindGlyphIndex(this.info, codePoint);
@@ -108,7 +114,7 @@ public class TTFFont implements Font {
     }
 
     @Environment(value = EnvType.CLIENT)
-    protected class TTFGlyph implements Glyph {
+    protected class TTFGlyph implements ContextualGlyph {
         final int width;
         final int height;
         final float bearingX;
@@ -120,7 +126,7 @@ public class TTFFont implements Font {
             this.width = x2 - x1;
             this.height = y2 - y1;
             this.advance = width / TTFFont.this.oversample;
-            this.bearingX = (sideBearing + (float) x1 + TTFFont.this.shiftX) / TTFFont.this.oversample;
+            this.bearingX = (sideBearing + + TTFFont.this.shiftX) / TTFFont.this.oversample;
             this.ascent = (TTFFont.this.ascent - (float) y2 + TTFFont.this.shiftY) / TTFFont.this.oversample;
             this.glyphIndex = glyphIndex;
         }
@@ -180,6 +186,17 @@ public class TTFFont implements Font {
                 }
             });
         }
+
+        @Override
+        public int getGlyphIndex() {
+            return glyphIndex;
+        }
+
+        @Override
+        public float getAdvance(int nextIndex) {
+            return getAdvance() + (STBTruetype.stbtt_GetGlyphKernAdvance(info, glyphIndex, nextIndex) * scaleFactor) / oversample;
+        }
     }
+
 }
 

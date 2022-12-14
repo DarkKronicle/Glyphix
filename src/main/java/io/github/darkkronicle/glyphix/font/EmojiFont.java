@@ -4,7 +4,6 @@ import com.google.gson.*;
 import io.github.darkkronicle.glyphix.Glyphix;
 import io.github.darkkronicle.glyphix.text.ContextualCharacterVisitor;
 import io.github.darkkronicle.glyphix.text.GlyphInfo;
-import io.github.darkkronicle.glyphix.text.GlyphVisitable;
 import io.github.darkkronicle.glyphix.vanilla.LigatureFont;
 import it.unimi.dsi.fastutil.ints.*;
 import lombok.*;
@@ -24,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 
-public class EmojiFont implements LigatureFont {
+public class EmojiFont implements LigatureFont<EmojiFont.EmojiGlyph> {
 
     private final EmojiFontAtlas atlas;
     private final int length = 8;
@@ -56,84 +55,6 @@ public class EmojiFont implements LigatureFont {
             return null;
         }
         return location.getCached(this).glyph();
-    }
-
-    public static int utf8ToCodepoint(String utf8) {
-        int number = Integer.valueOf(utf8, 16);
-        if (number < 0x80) {
-            // 0xxxxxxx
-            return number;
-        }
-        if (number < 0x800) {
-            // 110xxxxx 10xxxxxx
-            int one = (number & 0b00111111) + 0b10000000;
-            int two = ((number >>> 6) & 0b00011111) + 0b11000000;
-            return (two << 8) + one;
-        }
-        if (number < 0x10000) {
-            // 11110xxx 10xxxxxx 10xxxxxx
-            int one = (number & 0b00111111) + 0b10000000;
-            int two = ((number >>> 6) & 0b00111111) + 0b10000000;
-            int three = ((number >>> 12) & 0b00000111) + 0b11110000;
-            return (three << 16) + (two << 8) + one;
-        }
-        if (number < 0x200000) {
-            // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-            int one = (number & 0b00111111) + 0b10000000;
-            int two = ((number >>> 6) & 0b00111111) + 0b10000000;
-            int three = ((number >>> 12) & 0b00111111) + 0b10000000;
-            int four = ((number >>> 18) & 0b00000111) + 0b11110000;
-            return (four << 24) + (three << 16) + (two << 8) + one;
-        }
-        return -1;
-    }
-
-    public static String codepointToUtf8(int codepoint) {
-        // https://stackoverflow.com/questions/6240055/manually-converting-unicode-codepoints-into-utf-8-and-utf-16
-        String string = Character.toString(codepoint);
-        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
-        if (bytes.length == 4) {
-            return utf8From4(bytes);
-        }
-        if (bytes.length == 3) {
-            return utf8From3(bytes);
-        }
-        return null;
-    }
-
-    private static String utf8From1(byte[] bytes) {
-        // 0xxxxxxx
-        int one = bytes[0] & 0b01111111;
-        return Integer.toHexString(one);
-    }
-
-    private static String utf8From2(byte[] bytes) {
-        // 110xxxxx 10xxxxxx
-        int one = bytes[0] & 0b00011111;
-        int two = bytes[1] & 0b00111111;
-        int utf = (one << 6) + (two);
-        return Integer.toHexString(utf);
-    }
-
-    private static String utf8From3(byte[] bytes) {
-        // 11110xxx 10xxxxxx 10xxxxxx
-        int one = bytes[0] & 0b00000111;
-        int two = bytes[1] & 0b00111111;
-        int three = bytes[2] & 0b00111111;
-        int utf = (one << 12) + (two << 6) + (three);
-        return Integer.toHexString(utf);
-    }
-
-    private static String utf8From4(byte[] bytes) {
-        // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-        int one = bytes[0] & 0b00000111;
-        int two = bytes[1] & 0b00111111;
-        int three = bytes[2] & 0b00111111;
-        int four = bytes[3] & 0b00111111;
-
-        // Add up all the x's to get the original one
-        int utf = (one << 18) + (two << 12) + (three << 6) + (four);
-        return Integer.toHexString(utf);
     }
 
     private boolean valid(ContextualCharacterVisitor visitor, int index, EmojiLocation find) {
@@ -295,7 +216,7 @@ public class EmojiFont implements LigatureFont {
     }
 
     private GlyphInfo<EmojiGlyph> createGlyph(Vec2i position, int characterLength, int[] codepoints) {
-        return new GlyphInfo<>(new EmojiGlyph(position.x * atlas.length, position.y * atlas.length, characterLength, codepoints.length), codepoints);
+        return new GlyphInfo<>(new EmojiGlyph(position.x * atlas.length, position.y * atlas.length, characterLength, codepoints.length), codepoints, false);
     }
 
     @EqualsAndHashCode

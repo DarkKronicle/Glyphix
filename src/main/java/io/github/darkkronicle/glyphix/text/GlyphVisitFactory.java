@@ -14,13 +14,13 @@ import java.util.List;
 public class GlyphVisitFactory {
 
     public void visit(TextRenderer renderer, String text, Style style, boolean backwards, GlyphVisitable visitable) {
-        List<GlyphInfo> glyphs = new ArrayList<>();
+        List<GlyphInfo<?>> glyphs = new ArrayList<>();
         final int[] totalLength = {0};
         ContextualCharacterVisitor context = new ContextualCharacterVisitor() {
             @Override
             public boolean accept(Visited visited) {
                 LigatureFontStorage lig = (LigatureFontStorage) renderer.getFontStorage(visited.style().getFont());
-                GlyphInfo glyph = lig.getGlyphInfo(this, renderer.validateAdvance);
+                GlyphInfo<?> glyph = lig.getGlyphInfo(this, renderer.validateAdvance);
                 this.skip(glyph.codepointsLength() - 1);
                 totalLength[0] += glyph.charLength();
                 glyphs.add(glyph);
@@ -32,7 +32,7 @@ public class GlyphVisitFactory {
         if (backwards) {
             int characterIndex = totalLength[0];
             for (int i = glyphs.size() - 1; i >= 0; i--) {
-                GlyphInfo g = glyphs.get(i);
+                GlyphInfo<?> g = glyphs.get(i);
                 characterIndex -= g.charLength();
                 if (!visitable.accept(i, characterIndex, style, g)) {
                     return;
@@ -41,7 +41,7 @@ public class GlyphVisitFactory {
         } else {
             int characterIndex = 0;
             for (int i = 0; i <= glyphs.size() - 1; i++) {
-                GlyphInfo g = glyphs.get(i);
+                GlyphInfo<?> g = glyphs.get(i);
                 if (!visitable.accept(i, characterIndex, style, g)) {
                     return;
                 }

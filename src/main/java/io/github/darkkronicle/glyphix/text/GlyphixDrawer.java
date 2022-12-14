@@ -1,6 +1,7 @@
 package io.github.darkkronicle.glyphix.text;
 
 import com.google.common.collect.Lists;
+import io.github.darkkronicle.glyphix.font.ContextualGlyph;
 import io.github.darkkronicle.glyphix.font.EmojiFont;
 import io.github.darkkronicle.glyphix.vanilla.EmojiLayerHolder;
 import io.github.darkkronicle.glyphix.vanilla.LigatureFontStorage;
@@ -87,7 +88,7 @@ public class GlyphixDrawer extends ContextualCharacterVisitor {
         LigatureFontStorage ligStorage = (LigatureFontStorage) fontStorage;
         GlyphInfo<?> glyph = ligStorage.getGlyphInfo(this, renderer.validateAdvance);
         GlyphRenderer glyphRenderer = style.isObfuscated() && codepoint != 32 ? fontStorage.getObfuscatedGlyphRenderer(glyph.glyph()) : ligStorage.getGlyphRenderer(this);
-        boolean bl = style.isBold();
+        boolean bold = style.isBold();
         float f = this.alpha;
         TextColor textColor = style.getColor();
         float g;
@@ -105,48 +106,61 @@ public class GlyphixDrawer extends ContextualCharacterVisitor {
         }
 
         if (!(glyphRenderer instanceof EmptyGlyphRenderer)) {
-            float m = bl ? glyph.glyph().getBoldOffset() : 0.0F;
+            float m = bold ? glyph.glyph().getBoldOffset() : 0.0F;
             float n = this.shadow ? glyph.glyph().getShadowOffset() : 0.0F;
-            boolean emoji = EmojiFont.codepointToUtf8(codepoint) != null;
-            if (this.shadow && emoji) {
+            boolean tint = glyph.tint();
+            if (this.shadow && !tint) {
                 // Render the shadow color correctly
-                emoji = false;
+                tint = true;
             }
             VertexConsumer vertexConsumer = this.vertexConsumers.getBuffer(
                     getLayer(
                             glyphRenderer,
                             this.layerType,
-                            emoji
+                            tint
                     )
             );
             renderer.drawGlyph(
-                    glyphRenderer, bl, style.isItalic(), m, this.x + n, this.y + n, this.matrix, vertexConsumer, g, h, l, f,
+                    glyphRenderer, bold, style.isItalic(), m, this.x + n, this.y + n, this.matrix, vertexConsumer, g, h, l, f,
                     this.light
             );
         }
 
-        float m = glyph.getAdvance(bl);
+        float advance = getAdvance(ligStorage, glyph, bold);
+
         float n = this.shadow ? 1.0F : 0.0F;
         if (style.isStrikethrough()) {
             this.addRectangle(
-                    new GlyphRenderer.Rectangle(this.x + n - 1.0F, this.y + n + 4.5F, this.x + n + m, this.y + n + 4.5F - 1.0F, 0.01F, g, h,
+                    new GlyphRenderer.Rectangle(this.x + n - 1.0F, this.y + n + 4.5F, this.x + n + advance, this.y + n + 4.5F - 1.0F, 0.01F, g, h,
                             l, f
                     ));
         }
 
         if (style.isUnderlined()) {
             this.addRectangle(
-                    new GlyphRenderer.Rectangle(this.x + n - 1.0F, this.y + n + 9.0F, this.x + n + m, this.y + n + 9.0F - 1.0F, 0.01F, g, h,
+                    new GlyphRenderer.Rectangle(this.x + n - 1.0F, this.y + n + 9.0F, this.x + n + advance, this.y + n + 9.0F - 1.0F, 0.01F, g, h,
                             l, f
                     ));
         }
         skip(Math.max(glyph.codepointsLength() - 1, 0));
-        this.x += m;
+        this.x += advance;
         return true;
     }
 
-    private RenderLayer getLayer(GlyphRenderer renderer, TextRenderer.TextLayerType layerType, boolean emoji) {
-        if (!emoji) {
+    private float getAdvance(LigatureFontStorage ligStorage, GlyphInfo<?> glyph, boolean bold) {
+        if (getCurrentIndex() + 1 < size() && glyph.glyph() instanceof ContextualGlyph context) {
+            skip(1);
+            GlyphInfo<?> next = ligStorage.getGlyphInfo(this, renderer.validateAdvance);
+            skip(-1);
+            if (next.glyph() instanceof ContextualGlyph nextContext) {
+                return context.getAdvance(nextContext.getGlyphIndex());
+            }
+        }
+        return glyph.getAdvance(bold);
+    }
+
+    private RenderLayer getLayer(GlyphRenderer renderer, TextRenderer.TextLayerType layerType, boolean tint) {
+        if (tint) {
             return renderer.getLayer(layerType);
         }
         EmojiLayerHolder emojiAtlas = (EmojiLayerHolder) renderer;

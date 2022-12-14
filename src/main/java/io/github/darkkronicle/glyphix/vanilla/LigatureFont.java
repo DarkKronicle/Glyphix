@@ -5,9 +5,9 @@ import io.github.darkkronicle.glyphix.text.GlyphInfo;
 import net.minecraft.client.font.Font;
 import net.minecraft.client.font.Glyph;
 
-public interface LigatureFont extends Font {
+public interface LigatureFont<G extends Glyph> extends Font {
 
     Glyph getGlyph(ContextualCharacterVisitor visitor);
 
-    <G extends Glyph> GlyphInfo<G> getGlyphInfo(ContextualCharacterVisitor visitor);
+    GlyphInfo<G> getGlyphInfo(ContextualCharacterVisitor visitor);
 }

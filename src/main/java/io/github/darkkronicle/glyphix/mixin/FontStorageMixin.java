@@ -32,7 +32,7 @@ public abstract class FontStorageMixin implements LigatureFontStorage {
         int codepoint = visitor.current().codepoint();
         boolean advancedCheck = false;
         for (Font font : this.fonts) {
-            if (!(font instanceof LigatureFont ligFont)) {
+            if (!(font instanceof LigatureFont<?> ligFont)) {
                 continue;
             }
             Glyph glyph = ligFont.getGlyph(visitor);
@@ -49,14 +49,12 @@ public abstract class FontStorageMixin implements LigatureFontStorage {
         return this.getGlyph(codepoint, validateAdvance);
     }
 
-
-
     @Override
     public GlyphInfo<?> getGlyphInfo(ContextualCharacterVisitor visitor, boolean validateAdvance) {
         int codepoint = visitor.current().codepoint();
         boolean advancedCheck = false;
         for (Font font : this.fonts) {
-            if (!(font instanceof LigatureFont ligFont)) {
+            if (!(font instanceof LigatureFont<?> ligFont)) {
                 continue;
             }
             GlyphInfo<?> glyph = ligFont.getGlyphInfo(visitor);
@@ -71,14 +69,14 @@ public abstract class FontStorageMixin implements LigatureFontStorage {
         if (advancedCheck) {
             return null;
         }
-        return new GlyphInfo<>(this.getGlyph(codepoint, validateAdvance), new int[]{codepoint});
+        return new GlyphInfo<>(this.getGlyph(codepoint, validateAdvance), new int[]{codepoint}, true);
     }
 
     @Override
     public GlyphRenderer getGlyphRenderer(ContextualCharacterVisitor visitor) {
         int codepoint = visitor.current().codepoint();
         for (Font font : this.fonts) {
-            if (!(font instanceof LigatureFont ligFont)) {
+            if (!(font instanceof LigatureFont<?> ligFont)) {
                 continue;
             }
             Glyph glyph = ligFont.getGlyph(visitor);
