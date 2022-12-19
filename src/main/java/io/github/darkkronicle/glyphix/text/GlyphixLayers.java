@@ -35,12 +35,85 @@ public class GlyphixLayers extends RenderLayer {
             SHADER_EMOJI_INTENSITY_SEE_THROUGH::getProgram
     );
 
+    public static final Function<Identifier, RenderLayer> TEXT = Util.memoize(
+            texture -> of(
+                    "text",
+                    RenderLayer.MultiPhaseParameters.builder()
+                                                    .shader(RenderPhase.TEXT_SHADER)
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
+                                                    .transparency(TRANSLUCENT_TRANSPARENCY)
+                                                    .lightmap(ENABLE_LIGHTMAP)
+                                                    .build(false)
+            )
+    );
+    public static final Function<Identifier, RenderLayer> TEXT_INTENSITY = Util.memoize(
+            texture -> of(
+                    "emoji_intensity",
+                    RenderLayer.MultiPhaseParameters.builder()
+                                                    .shader(RenderPhase.TEXT_INTENSITY_SHADER)
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
+                                                    .transparency(TRANSLUCENT_TRANSPARENCY)
+                                                    .lightmap(ENABLE_LIGHTMAP)
+                                                    .build(false)
+            )
+    );
+    public static final Function<Identifier, RenderLayer> TEXT_POLYGON_OFFSET = Util.memoize(
+            texture -> of(
+                    "text_polygon_offset",
+                    RenderLayer.MultiPhaseParameters.builder()
+                                                    .shader(RenderPhase.TEXT_SHADER)
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
+                                                    .transparency(TRANSLUCENT_TRANSPARENCY)
+                                                    .lightmap(ENABLE_LIGHTMAP)
+                                                    .layering(POLYGON_OFFSET_LAYERING)
+                                                    .build(false)
+            )
+    );
+    public static final Function<Identifier, RenderLayer> TEXT_INTENSITY_POLYGON_OFFSET = Util.memoize(
+            texture -> of(
+                    "text_intensity_polygon_offset",
+                    RenderLayer.MultiPhaseParameters.builder()
+                                                    .shader(RenderPhase.TEXT_INTENSITY_SHADER)
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
+                                                    .transparency(TRANSLUCENT_TRANSPARENCY)
+                                                    .lightmap(ENABLE_LIGHTMAP)
+                                                    .layering(POLYGON_OFFSET_LAYERING)
+                                                    .build(false)
+            )
+    );
+    public static final Function<Identifier, RenderLayer> TEXT_SEE_THROUGH = Util.memoize(
+            texture -> of(
+                    "text_see_through",
+                    RenderLayer.MultiPhaseParameters.builder()
+                                                    .shader(RenderPhase.TRANSPARENT_TEXT_SHADER)
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
+                                                    .transparency(TRANSLUCENT_TRANSPARENCY)
+                                                    .lightmap(ENABLE_LIGHTMAP)
+                                                    .depthTest(ALWAYS_DEPTH_TEST)
+                                                    .writeMaskState(COLOR_MASK)
+                                                    .build(false)
+            )
+    );
+    public static final Function<Identifier, RenderLayer> TEXT_INTENSITY_SEE_THROUGH = Util.memoize(
+            texture -> of(
+                    "text_intensity_see_through",
+                    MultiPhaseParameters.builder()
+                                        .shader(RenderPhase.TRANSPARENT_TEXT_INTENSITY_SHADER)
+                                        .texture(new Texture(texture, true, false))
+                                        .transparency(TRANSLUCENT_TRANSPARENCY)
+                                        .lightmap(ENABLE_LIGHTMAP)
+                                        .depthTest(ALWAYS_DEPTH_TEST)
+                                        .writeMaskState(COLOR_MASK)
+                                        .build(false)
+            )
+    );
+
     public static final Function<Identifier, RenderLayer> EMOJI = Util.memoize(
             texture -> of(
                     "emoji",
                     RenderLayer.MultiPhaseParameters.builder()
                                                     .shader(EMOJI_PROGRAM)
-                                                    .texture(new RenderPhase.Texture(texture, false, false))
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
                                                     .build(false)
@@ -51,7 +124,7 @@ public class GlyphixLayers extends RenderLayer {
                     "emoji_intensity",
                     RenderLayer.MultiPhaseParameters.builder()
                                                     .shader(EMOJI_INTENSITY_PROGRAM)
-                                                    .texture(new RenderPhase.Texture(texture, false, false))
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
                                                     .build(false)
@@ -62,7 +135,7 @@ public class GlyphixLayers extends RenderLayer {
                     "emoji_polygon_offset",
                     RenderLayer.MultiPhaseParameters.builder()
                                                     .shader(EMOJI_PROGRAM)
-                                                    .texture(new RenderPhase.Texture(texture, false, false))
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
                                                     .layering(POLYGON_OFFSET_LAYERING)
@@ -74,7 +147,7 @@ public class GlyphixLayers extends RenderLayer {
                     "emoji_intensity_polygon_offset",
                     RenderLayer.MultiPhaseParameters.builder()
                                                     .shader(EMOJI_INTENSITY_PROGRAM)
-                                                    .texture(new RenderPhase.Texture(texture, false, false))
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
                                                     .layering(POLYGON_OFFSET_LAYERING)
@@ -86,7 +159,7 @@ public class GlyphixLayers extends RenderLayer {
                     "emoji_see_through",
                     RenderLayer.MultiPhaseParameters.builder()
                                                     .shader(TRANSPARENT_EMOJI_PROGRAM)
-                                                    .texture(new RenderPhase.Texture(texture, false, false))
+                                                    .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
                                                     .depthTest(ALWAYS_DEPTH_TEST)
@@ -96,10 +169,10 @@ public class GlyphixLayers extends RenderLayer {
     );
     public static final Function<Identifier, RenderLayer> EMOJI_INTENSITY_SEE_THROUGH = Util.memoize(
             texture -> of(
-                    "text_intensity_see_through",
+                    "emoji_intensity_see_through",
                     MultiPhaseParameters.builder()
                                                     .shader(TRANSPARENT_EMOJI_INTENSITY_PROGRAM)
-                                                    .texture(new Texture(texture, false, false))
+                                                    .texture(new Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
                                                     .depthTest(ALWAYS_DEPTH_TEST)

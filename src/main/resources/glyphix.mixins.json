@@ -4,6 +4,7 @@
   "package": "io.github.darkkronicle.glyphix.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "GlyphAtlasTextureMixin"
   ],
   "client": [
     "EmojiGlyphAtlasTexture",

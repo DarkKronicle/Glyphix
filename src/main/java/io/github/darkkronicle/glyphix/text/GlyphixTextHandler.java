@@ -2,6 +2,7 @@ package io.github.darkkronicle.glyphix.text;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import io.github.darkkronicle.glyphix.font.ContextualGlyph;
 import io.github.darkkronicle.glyphix.vanilla.LigatureFontStorage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -31,17 +32,30 @@ public class GlyphixTextHandler extends TextHandler {
     }
 
     private float getWidth(ContextualCharacterVisitor visitor, boolean skip) {
-        return getWidth(visitor, skip, false);
+        return getWidth(visitor, skip, false, false);
     }
 
-    private float getWidth(ContextualCharacterVisitor visitor, boolean skip, boolean backwards) {
+    private float getWidth(ContextualCharacterVisitor visitor, boolean skip, boolean backwards, boolean bold) {
         ContextualCharacterVisitor.Visited current = visitor.current();
-        GlyphInfo<?> glyph = ((LigatureFontStorage) renderer.getFontStorage(current.style().getFont()))
-                .getGlyphInfo(visitor, renderer.validateAdvance);
+        LigatureFontStorage storage = (LigatureFontStorage) renderer.getFontStorage(current.style().getFont());
+        GlyphInfo<?> glyph = storage.getGlyphInfo(visitor, renderer.validateAdvance);
+        float advance = getAdvance(visitor, storage, glyph, bold);
         if (skip) {
             visitor.skip(glyph.codepointsLength() - 1);
         }
-        return glyph.getAdvance(current.style().isBold());
+        return advance;
+    }
+
+    private float getAdvance(ContextualCharacterVisitor visitor, LigatureFontStorage ligStorage, GlyphInfo<?> glyph, boolean bold) {
+        if (visitor.getCurrentIndex() + 1 < visitor.size() && glyph.glyph() instanceof ContextualGlyph context) {
+            visitor.skip(1);
+            GlyphInfo<?> next = ligStorage.getGlyphInfo(visitor, renderer.validateAdvance);
+            visitor.skip(-1);
+            if (next.glyph() instanceof ContextualGlyph nextContext) {
+                return context.getAdvance(nextContext.getGlyphIndex());
+            }
+        }
+        return glyph.getAdvance(bold);
     }
 
     @Override
@@ -97,8 +111,14 @@ public class GlyphixTextHandler extends TextHandler {
     public String trimToWidthBackwards(String text, int maxWidth, Style style) {
         MutableFloat mutableFloat = new MutableFloat();
         MutableInt mutableInt = new MutableInt(text.length());
-        GlyphVisitFactory.visit(renderer, text, style, true, (index, characterPos, style1, glyph) -> {
-            if (mutableFloat.addAndGet(glyph.getAdvance(style1.isBold())) > (float) maxWidth) {
+        GlyphVisitFactory.visit(renderer, text, style, true, (index, characterPos, style1, glyph, nextGlyph) -> {
+            float advance;
+            if (nextGlyph != null && glyph.glyph() instanceof ContextualGlyph g1 && nextGlyph.glyph() instanceof ContextualGlyph glyph2) {
+                advance = g1.getAdvance(glyph2.getGlyphIndex());
+            } else {
+                advance = glyph.getAdvance(style.isBold());
+            }
+            if (mutableFloat.addAndGet(advance) > (float) maxWidth) {
                 return false;
             } else {
                 mutableInt.setValue(characterPos);
@@ -317,7 +337,8 @@ public class GlyphixTextHandler extends TextHandler {
         public boolean accept(Visited visited) {
             LigatureFontStorage lig = (LigatureFontStorage) renderer.getFontStorage(visited.style().getFont());
             GlyphInfo<?> glyph = lig.getGlyphInfo(this, renderer.validateAdvance);
-            this.widthLeft -= glyph.getAdvance(visited.style().isBold());
+            float advance = getAdvance(this, lig, glyph, visited.style().isBold());
+            this.widthLeft -= advance;
             if (this.widthLeft >= 0.0F) {
                 this.length = visited.index() + glyph.charLength();
                 lastValidStyle = visited.style();
@@ -353,7 +374,7 @@ public class GlyphixTextHandler extends TextHandler {
         }
 
         @Override
-        public boolean accept(int index, int characterIndex, Style style, GlyphInfo glyph) {
+        public boolean accept(int index, int characterIndex, Style style, GlyphInfo<?> glyph, GlyphInfo<?> nextGlyph) {
             int i = characterIndex + this.startOffset;
             switch (glyph.codepoints()[0]) {
                 case 10: // Line feed character
@@ -362,10 +383,15 @@ public class GlyphixTextHandler extends TextHandler {
                     this.lastSpaceBreak = i;
                     this.lastSpaceStyle = style;
                 default:
-                    float f = glyph.getAdvance(style.isBold());
-                    this.totalWidth += f;
+                    float advance;
+                    if (nextGlyph != null && glyph.glyph() instanceof ContextualGlyph g1 && nextGlyph.glyph() instanceof ContextualGlyph glyph2) {
+                        advance = g1.getAdvance(glyph2.getGlyphIndex());
+                    } else {
+                        advance = glyph.getAdvance(style.isBold());
+                    }
+                    this.totalWidth += advance;
                     if (!this.nonEmpty || !(this.totalWidth > this.maxWidth)) {
-                        this.nonEmpty |= f != 0.0F;
+                        this.nonEmpty |= advance != 0.0F;
                         this.count = i + glyph.charLength();
                         return true;
                     } else {

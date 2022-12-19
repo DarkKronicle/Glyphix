@@ -34,7 +34,7 @@ public class GlyphVisitFactory {
             for (int i = glyphs.size() - 1; i >= 0; i--) {
                 GlyphInfo<?> g = glyphs.get(i);
                 characterIndex -= g.charLength();
-                if (!visitable.accept(i, characterIndex, style, g)) {
+                if (!visitable.accept(i, characterIndex, style, g, i < glyphs.size() - 1 ? glyphs.get(i + 1) : null)) {
                     return;
                 }
             }
@@ -42,7 +42,7 @@ public class GlyphVisitFactory {
             int characterIndex = 0;
             for (int i = 0; i <= glyphs.size() - 1; i++) {
                 GlyphInfo<?> g = glyphs.get(i);
-                if (!visitable.accept(i, characterIndex, style, g)) {
+                if (!visitable.accept(i, characterIndex, style, g, i < glyphs.size() - 1 ? glyphs.get(i + 1) : null)) {
                     return;
                 }
                 characterIndex += g.charLength();
@@ -75,7 +75,7 @@ public class GlyphVisitFactory {
         int characterIndex = 0;
         for (int i = 0; i <= glyphs.size() - 1; i++) {
             GlyphInfo<?> g = glyphs.get(i);
-            if (!visitor.accept(i + startingIndex, characterIndex + startingIndex, context.get(i).style(), g)) {
+            if (!visitor.accept(i + startingIndex, characterIndex + startingIndex, context.get(i).style(), g, i < glyphs.size() - 1 ? glyphs.get(i + 1) : null)) {
                 return false;
             }
             characterIndex += g.charLength();

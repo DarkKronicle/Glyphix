@@ -1,10 +1,7 @@
 package io.github.darkkronicle.glyphix.font;
 
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import io.github.darkkronicle.glyphix.text.OversampleRenderableGlyph;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -13,22 +10,21 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.*;
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.stb.STBTTFontinfo;
-import org.lwjgl.stb.STBTruetype;
+import org.lwjgl.stb.*;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 @Environment(value = EnvType.CLIENT)
 public class TTFFont implements Font {
-    private final ByteBuffer buffer;
+    private final ByteBuffer fontData;
     private final STBTTFontinfo info;
     private final float oversample;
     private final IntSet excludedCharacters = new IntArraySet();
@@ -36,18 +32,23 @@ public class TTFFont implements Font {
     private final float shiftY;
     private final float scaleFactor;
     private final float ascent;
+    private final int oversampleWidth = 4;
+    private final float size;
+    private STBTTPackContext pack;
 
     public TTFFont(
-            ByteBuffer buffer, STBTTFontinfo info, float size, float oversample, float shiftX, float shiftY, String excludedCharacters
+            ByteBuffer fontData, STBTTFontinfo info, float size, float oversample, float shiftX, float shiftY, String excludedCharacters
     ) {
-        this.buffer = buffer;
+        this.fontData = fontData;
         this.info = info;
+        this.size = size;
         this.oversample = oversample;
         excludedCharacters.codePoints().forEach(this.excludedCharacters::add);
         this.shiftX = shiftX * oversample;
         this.shiftY = shiftY * oversample;
         this.scaleFactor = STBTruetype.stbtt_ScaleForPixelHeight(info, size * oversample);
-        try (MemoryStack memoryStack = MemoryStack.stackPush();) {
+        this.pack = STBTTPackContext.malloc();
+        try (MemoryStack memoryStack = MemoryStack.stackPush()) {
             IntBuffer intBuffer = memoryStack.mallocInt(1);
             IntBuffer intBuffer2 = memoryStack.mallocInt(1);
             IntBuffer intBuffer3 = memoryStack.mallocInt(1);
@@ -61,9 +62,6 @@ public class TTFFont implements Font {
     public Glyph getGlyph(int codePoint) {
         if (this.excludedCharacters.contains(codePoint)) {
             return null;
-        }
-        if (codePoint == 106) {
-            System.out.println("Here");
         }
         try (MemoryStack memoryStack = MemoryStack.stackPush()) {
             int glyphIndex = STBTruetype.stbtt_FindGlyphIndex(this.info, codePoint);
@@ -96,14 +94,14 @@ public class TTFFont implements Font {
                 return (Glyph.EmptyGlyph) () -> width / this.oversample;
             }
             return new TTFGlyph(
-                    x1.get(0), x2.get(0), -y2.get(0), -y1.get(0), width, (float) leftSideBearing.get(0) * this.scaleFactor, glyphIndex);
+                    x1.get(0), x2.get(0), -y2.get(0), -y1.get(0), width, (float) leftSideBearing.get(0) * this.scaleFactor, glyphIndex, codePoint);
         }
     }
 
     @Override
     public void close() {
         this.info.free();
-        MemoryUtil.memFree(this.buffer);
+        MemoryUtil.memFree(this.fontData);
     }
 
     @Override
@@ -115,20 +113,24 @@ public class TTFFont implements Font {
 
     @Environment(value = EnvType.CLIENT)
     protected class TTFGlyph implements ContextualGlyph {
-        final int width;
-        final int height;
-        final float bearingX;
-        final float ascent;
+        private final int width;
+        private final int textureWidth;
+        private final int height;
+        private final float bearingX;
+        private final float ascent;
         private final float advance;
-        final int glyphIndex;
+        private final int glyphIndex;
+        private final int unicode;
 
-        protected TTFGlyph(int x1, int x2, int y1, int y2, float width, float sideBearing, int glyphIndex) {
-            this.width = x2 - x1;
+        protected TTFGlyph(int x1, int x2, int y1, int y2, float width, float sideBearing, int glyphIndex, int unicode) {
+            this.width = (x2 - x1);
+            this.textureWidth = this.width;
             this.height = y2 - y1;
             this.advance = width / TTFFont.this.oversample;
             this.bearingX = (sideBearing + + TTFFont.this.shiftX) / TTFFont.this.oversample;
             this.ascent = (TTFFont.this.ascent - (float) y2 + TTFFont.this.shiftY) / TTFFont.this.oversample;
             this.glyphIndex = glyphIndex;
+            this.unicode = unicode;
         }
 
         @Override
@@ -138,11 +140,13 @@ public class TTFFont implements Font {
 
         @Override
         public GlyphRenderer bake(Function<RenderableGlyph, GlyphRenderer> function) {
-            return function.apply(new RenderableGlyph() {
+            return function.apply(new OversampleRenderableGlyph() {
+
+                private STBTTPackedchar.Buffer charData;
 
                 @Override
                 public int getWidth() {
-                    return TTFGlyph.this.width;
+                    return TTFGlyph.this.textureWidth;
                 }
 
                 @Override
@@ -167,17 +171,63 @@ public class TTFFont implements Font {
 
                 @Override
                 public void upload(int x, int y) {
-                    NativeImage nativeImage = new NativeImage(
+                    NativeImage nativeImage;
+
+
+//                    STBTruetype.nstbtt_PackBegin(
+//                            pack.address(),
+//                            nativeImage.pointer,
+//                            width * oversampleWidth,
+//                            height,
+//                            0,
+//                            1,
+//                            0
+//                    );
+//                    STBTruetype.stbtt_PackSetOversampling(pack, oversampleWidth, 1);
+//                    charData = STBTTPackedchar.create(1);
+//                    STBTruetype.stbtt_PackFontRange(pack, fontData, 0, size, unicode, charData);
+//                    STBTruetype.stbtt_PackEnd(pack);
+
+
+                    ByteBuffer data = STBTruetype.stbtt_GetGlyphSDF(info, scaleFactor, glyphIndex, 0, (byte) 128, -16, new int[]{TTFGlyph.this.width}, new int[]{TTFGlyph.this.height}, new int[]{x}, new int[]{y});
+//                    nativeImage = new NativeImage(
+//                            NativeImage.Format.RGBA,
+//                            TTFGlyph.this.width,
+//                            TTFGlyph.this.height,
+//                            true,
+//                            MemoryUtil.memAddress(data)
+//                    );
+//                    data.rewind();
+                    nativeImage = new NativeImage(
                             NativeImage.Format.LUMINANCE,
-                            TTFGlyph.this.width,
+                            TTFGlyph.this.textureWidth,
                             TTFGlyph.this.height,
                             false
                     );
-                    nativeImage.makeGlyphBitmapSubpixel(
-                            TTFFont.this.info, TTFGlyph.this.glyphIndex, TTFGlyph.this.width, TTFGlyph.this.height,
-                            TTFFont.this.scaleFactor, TTFFont.this.scaleFactor, TTFFont.this.shiftX, TTFFont.this.shiftY, 0, 0
-                    );
-                    nativeImage.upload(0, x, y, 0, 0, TTFGlyph.this.width, TTFGlyph.this.height, false, true);
+                    try {
+                        int bx = 0;
+                        int by = 0;
+                        while (data.hasRemaining()) {
+                            byte b = data.get();
+                            nativeImage.setLuminance(bx, by, b);
+                            bx++;
+                            if (bx >= TTFGlyph.this.width) {
+                                by++;
+                                if (by == TTFGlyph.this.height) {
+                                    break;
+                                }
+                                bx = 0;
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Error with character " + Character.toString(unicode));
+                        nativeImage.makeGlyphBitmapSubpixel(
+                                TTFFont.this.info, TTFGlyph.this.glyphIndex, TTFGlyph.this.textureWidth, TTFGlyph.this.height,
+                                TTFFont.this.scaleFactor, TTFFont.this.scaleFactor, TTFFont.this.shiftX, TTFFont.this.shiftY, 0, 0
+                        );
+                    }
+
+                    nativeImage.upload(0, x, y, 0, 0, TTFGlyph.this.textureWidth, TTFGlyph.this.height, false, true);
                 }
 
                 @Override

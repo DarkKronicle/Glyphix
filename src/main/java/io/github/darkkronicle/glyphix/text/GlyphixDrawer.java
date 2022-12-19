@@ -13,6 +13,8 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.math.Matrix4f;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.util.List;
 
@@ -120,6 +122,7 @@ public class GlyphixDrawer extends ContextualCharacterVisitor {
                             tint
                     )
             );
+
             renderer.drawGlyph(
                     glyphRenderer, bold, style.isItalic(), m, this.x + n, this.y + n, this.matrix, vertexConsumer, g, h, l, f,
                     this.light

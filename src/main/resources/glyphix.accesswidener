@@ -17,3 +17,20 @@ accessible field net/minecraft/client/font/TextHandler$LineWrappingCollector joi
 accessible class net/minecraft/client/render/RenderLayer$MultiPhaseParameters
 accessible class net/minecraft/client/render/RenderLayer$MultiPhase
 accessible method net/minecraft/client/render/RenderLayer$MultiPhase <init> (Ljava/lang/String;Lnet/minecraft/client/render/VertexFormat;Lnet/minecraft/client/render/VertexFormat$DrawMode;IZZLnet/minecraft/client/render/RenderLayer$MultiPhaseParameters;)V
+accessible field net/minecraft/client/texture/NativeImage pointer J
+accessible class net/minecraft/client/font/GlyphAtlasTexture$Slot
+accessible field net/minecraft/client/font/GlyphAtlasTexture$Slot x I
+accessible field net/minecraft/client/font/GlyphAtlasTexture$Slot y I
+accessible field net/minecraft/client/font/GlyphRenderer minU F
+accessible field net/minecraft/client/font/GlyphRenderer maxU F
+accessible field net/minecraft/client/font/GlyphRenderer minV F
+accessible field net/minecraft/client/font/GlyphRenderer maxV F
+accessible field net/minecraft/client/font/GlyphRenderer minX F
+accessible field net/minecraft/client/font/GlyphRenderer maxX F
+accessible field net/minecraft/client/font/GlyphRenderer minY F
+accessible field net/minecraft/client/font/GlyphRenderer maxY F
+accessible method net/minecraft/client/font/GlyphAtlasTexture$Slot findSlotFor (Lnet/minecraft/client/font/RenderableGlyph;)Lnet/minecraft/client/font/GlyphAtlasTexture$Slot;
+mutable field net/minecraft/client/font/GlyphAtlasTexture seeThroughTextLayer Lnet/minecraft/client/render/RenderLayer;
+mutable field net/minecraft/client/font/GlyphAtlasTexture textLayer Lnet/minecraft/client/render/RenderLayer;
+mutable field net/minecraft/client/font/GlyphAtlasTexture polygonOffsetTextLayer Lnet/minecraft/client/render/RenderLayer;
+accessible method net/minecraft/client/texture/NativeImage <init> (Lnet/minecraft/client/texture/NativeImage$Format;IIZJ)V
