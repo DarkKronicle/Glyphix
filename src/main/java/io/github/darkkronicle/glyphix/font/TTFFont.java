@@ -173,31 +173,7 @@ public class TTFFont implements Font {
                 public void upload(int x, int y) {
                     NativeImage nativeImage;
 
-
-//                    STBTruetype.nstbtt_PackBegin(
-//                            pack.address(),
-//                            nativeImage.pointer,
-//                            width * oversampleWidth,
-//                            height,
-//                            0,
-//                            1,
-//                            0
-//                    );
-//                    STBTruetype.stbtt_PackSetOversampling(pack, oversampleWidth, 1);
-//                    charData = STBTTPackedchar.create(1);
-//                    STBTruetype.stbtt_PackFontRange(pack, fontData, 0, size, unicode, charData);
-//                    STBTruetype.stbtt_PackEnd(pack);
-
-
-                    ByteBuffer data = STBTruetype.stbtt_GetGlyphSDF(info, scaleFactor, glyphIndex, 0, (byte) 128, -16, new int[]{TTFGlyph.this.width}, new int[]{TTFGlyph.this.height}, new int[]{x}, new int[]{y});
-//                    nativeImage = new NativeImage(
-//                            NativeImage.Format.RGBA,
-//                            TTFGlyph.this.width,
-//                            TTFGlyph.this.height,
-//                            true,
-//                            MemoryUtil.memAddress(data)
-//                    );
-//                    data.rewind();
+                    ByteBuffer data = STBTruetype.stbtt_GetGlyphSDF(info, scaleFactor, glyphIndex, 0, (byte) 128, -scaleFactor * 320, new int[]{TTFGlyph.this.width}, new int[]{TTFGlyph.this.height}, new int[]{x}, new int[]{y});
                     nativeImage = new NativeImage(
                             NativeImage.Format.LUMINANCE,
                             TTFGlyph.this.textureWidth,
