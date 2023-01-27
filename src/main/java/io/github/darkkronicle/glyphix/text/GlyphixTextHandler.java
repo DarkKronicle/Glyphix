@@ -7,11 +7,11 @@ import io.github.darkkronicle.glyphix.vanilla.LigatureFontStorage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextHandler;
-import net.minecraft.client.font.TextVisitFactory;
 import net.minecraft.client.util.TextCollector;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Style;
+import net.minecraft.text.TextVisitFactory;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
@@ -200,12 +200,12 @@ public class GlyphixTextHandler extends TextHandler {
         return collector.getCombined();
     }
 
-    public List<TextHandler.MatchResult> getStyleMatchResults(OrderedText text, Predicate<Style> stylePredicate) {
+    /* public List<TextHandler.MatchResult> getStyleMatchResults(OrderedText text, Predicate<Style> stylePredicate) {
         StylePredicateVisitor stylePredicateVisitor = new StylePredicateVisitor(stylePredicate);
         text.accept(stylePredicateVisitor);
         stylePredicateVisitor.done();
         return stylePredicateVisitor.getResults();
-    }
+    } */
 
     public void wrapLines(
             String text, int maxWidth, Style resetStyle, boolean retainTrailingWordSplit, TextHandler.LineWrappingConsumer consumer
@@ -277,7 +277,7 @@ public class GlyphixTextHandler extends TextHandler {
     }
 
 
-    private class StylePredicateVisitor extends ContextualCharacterVisitor {
+    /* private class StylePredicateVisitor extends ContextualCharacterVisitor {
         private final Predicate<Style> stylePredicate;
         private float totalWidth;
         private final ImmutableList.Builder<MatchResult> results = ImmutableList.builder();
@@ -321,7 +321,7 @@ public class GlyphixTextHandler extends TextHandler {
 
             return this.results.build();
         }
-    }
+    } */
 
 
     public class WidthLimitingVisitor extends ContextualCharacterVisitor {

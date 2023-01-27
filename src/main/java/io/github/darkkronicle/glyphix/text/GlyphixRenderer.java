@@ -4,18 +4,17 @@ import net.minecraft.client.font.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.text.OrderedText;
-import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Style;
+import net.minecraft.text.TextVisitFactory;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.function.Function;
 
 public class GlyphixRenderer extends TextRenderer {
 
-    private static final Vec3f FORWARD_SHIFT = new Vec3f(0.0F, 0.0F, 0.03F);
+    private static final Vector3f FORWARD_SHIFT = new Vector3f(0.0F, 0.0F, 0.03F);
 
     public GlyphixRenderer(
             Function<Identifier, FontStorage> fontStorageAccessor,
@@ -53,7 +52,7 @@ public class GlyphixRenderer extends TextRenderer {
         Matrix4f matrix4f = new Matrix4f(matrix);
         if (shadow) {
             this.drawLayer(text, x, y, color, true, matrix, vertexConsumers, seeThrough, backgroundColor, light);
-            matrix4f.addToLastColumn(FORWARD_SHIFT);
+            matrix4f.translate(FORWARD_SHIFT);
         }
 
         x = this.drawLayer(text, x, y, color, false, matrix4f, vertexConsumers, seeThrough, backgroundColor, light);

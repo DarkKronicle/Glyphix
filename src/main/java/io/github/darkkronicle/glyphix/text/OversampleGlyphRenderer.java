@@ -3,8 +3,7 @@ package io.github.darkkronicle.glyphix.text;
 import net.minecraft.client.font.GlyphRenderer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.util.math.Matrix4f;
-import org.lwjgl.stb.STBTTAlignedQuad;
+import org.joml.Matrix4f;
 
 public class OversampleGlyphRenderer extends GlyphRenderer {
 

@@ -3,9 +3,9 @@ package io.github.darkkronicle.glyphix.text;
 import io.github.darkkronicle.glyphix.vanilla.LigatureFontStorage;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.font.TextVisitFactory;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Style;
+import net.minecraft.text.TextVisitFactory;
 
 import java.util.ArrayList;
 import java.util.List;

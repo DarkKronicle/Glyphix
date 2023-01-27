@@ -1,9 +1,9 @@
 accessWidener	v1	named
 
-extendable method net/minecraft/client/font/TextRenderer drawInternal (Ljava/lang/String;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZIIZ)I
-extendable method net/minecraft/client/font/TextRenderer drawLayer (Ljava/lang/String;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)F
-extendable method net/minecraft/client/font/TextRenderer drawLayer (Lnet/minecraft/text/OrderedText;FFIZLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)F
-extendable method net/minecraft/client/font/TextRenderer drawGlyph (Lnet/minecraft/client/font/GlyphRenderer;ZZFFFLnet/minecraft/util/math/Matrix4f;Lnet/minecraft/client/render/VertexConsumer;FFFFI)V
+extendable method net/minecraft/client/font/TextRenderer drawInternal (Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZIIZ)I
+extendable method net/minecraft/client/font/TextRenderer drawLayer (Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)F
+extendable method net/minecraft/client/font/TextRenderer drawLayer (Lnet/minecraft/text/OrderedText;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)F
+extendable method net/minecraft/client/font/TextRenderer drawGlyph (Lnet/minecraft/client/font/GlyphRenderer;ZZFFFLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumer;FFFFI)V
 accessible method net/minecraft/client/font/TextRenderer getFontStorage (Lnet/minecraft/util/Identifier;)Lnet/minecraft/client/font/FontStorage;
 accessible field net/minecraft/client/font/TextRenderer validateAdvance Z
 accessible field net/minecraft/client/font/TextRenderer handler Lnet/minecraft/client/font/TextHandler;

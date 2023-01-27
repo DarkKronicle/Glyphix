@@ -11,10 +11,8 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
-import net.minecraft.util.math.Matrix4f;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
+import org.joml.Matrix4f;
 
 import java.util.List;
 

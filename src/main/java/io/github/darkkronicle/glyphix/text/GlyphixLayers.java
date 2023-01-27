@@ -28,10 +28,10 @@ public class GlyphixLayers extends RenderLayer {
     );
 
 
-    protected static final RenderPhase.Shader EMOJI_PROGRAM = new RenderPhase.Shader(SHADER_EMOJI::getProgram);
-    protected static final RenderPhase.Shader EMOJI_INTENSITY_PROGRAM = new RenderPhase.Shader(SHADER_EMOJI_INTENSITY::getProgram);
-    protected static final RenderPhase.Shader TRANSPARENT_EMOJI_PROGRAM = new RenderPhase.Shader(SHADER_EMOJI_SEE_THROUGH::getProgram);
-    protected static final RenderPhase.Shader TRANSPARENT_EMOJI_INTENSITY_PROGRAM = new RenderPhase.Shader(
+    protected static final RenderPhase.ShaderProgram EMOJI_PROGRAM = new RenderPhase.ShaderProgram(SHADER_EMOJI::getProgram);
+    protected static final RenderPhase.ShaderProgram EMOJI_INTENSITY_PROGRAM = new RenderPhase.ShaderProgram(SHADER_EMOJI_INTENSITY::getProgram);
+    protected static final RenderPhase.ShaderProgram TRANSPARENT_EMOJI_PROGRAM = new RenderPhase.ShaderProgram(SHADER_EMOJI_SEE_THROUGH::getProgram);
+    protected static final RenderPhase.ShaderProgram TRANSPARENT_EMOJI_INTENSITY_PROGRAM = new RenderPhase.ShaderProgram(
             SHADER_EMOJI_INTENSITY_SEE_THROUGH::getProgram
     );
 
@@ -39,7 +39,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "text",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(RenderPhase.TEXT_SHADER)
+                                                    .program(RenderPhase.TEXT_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -50,7 +50,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "emoji_intensity",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(RenderPhase.TEXT_INTENSITY_SHADER)
+                                                    .program(RenderPhase.TEXT_INTENSITY_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -61,7 +61,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "text_polygon_offset",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(RenderPhase.TEXT_SHADER)
+                                                    .program(RenderPhase.TEXT_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -73,7 +73,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "text_intensity_polygon_offset",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(RenderPhase.TEXT_INTENSITY_SHADER)
+                                                    .program(RenderPhase.TEXT_INTENSITY_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -85,7 +85,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "text_see_through",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(RenderPhase.TRANSPARENT_TEXT_SHADER)
+                                                    .program(RenderPhase.TRANSPARENT_TEXT_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -98,7 +98,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "text_intensity_see_through",
                     MultiPhaseParameters.builder()
-                                        .shader(RenderPhase.TRANSPARENT_TEXT_INTENSITY_SHADER)
+                                        .program(RenderPhase.TRANSPARENT_TEXT_INTENSITY_PROGRAM)
                                         .texture(new Texture(texture, true, false))
                                         .transparency(TRANSLUCENT_TRANSPARENCY)
                                         .lightmap(ENABLE_LIGHTMAP)
@@ -112,7 +112,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "emoji",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(EMOJI_PROGRAM)
+                                                    .program(EMOJI_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -123,7 +123,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "emoji_intensity",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(EMOJI_INTENSITY_PROGRAM)
+                                                    .program(EMOJI_INTENSITY_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -134,7 +134,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "emoji_polygon_offset",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(EMOJI_PROGRAM)
+                                                    .program(EMOJI_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -146,7 +146,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "emoji_intensity_polygon_offset",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(EMOJI_INTENSITY_PROGRAM)
+                                                    .program(EMOJI_INTENSITY_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -158,7 +158,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "emoji_see_through",
                     RenderLayer.MultiPhaseParameters.builder()
-                                                    .shader(TRANSPARENT_EMOJI_PROGRAM)
+                                                    .program(TRANSPARENT_EMOJI_PROGRAM)
                                                     .texture(new RenderPhase.Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
@@ -171,7 +171,7 @@ public class GlyphixLayers extends RenderLayer {
             texture -> of(
                     "emoji_intensity_see_through",
                     MultiPhaseParameters.builder()
-                                                    .shader(TRANSPARENT_EMOJI_INTENSITY_PROGRAM)
+                                                    .program(TRANSPARENT_EMOJI_INTENSITY_PROGRAM)
                                                     .texture(new Texture(texture, true, false))
                                                     .transparency(TRANSLUCENT_TRANSPARENCY)
                                                     .lightmap(ENABLE_LIGHTMAP)
